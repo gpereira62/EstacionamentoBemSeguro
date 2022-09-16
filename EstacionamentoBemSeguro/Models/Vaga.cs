@@ -8,7 +8,7 @@ namespace EstacionamentoBemSeguro.Models
 {
     internal class Vaga
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public Guid Id { get; set; }
         public State Status { get; set; } = State.Disponivel;
         public Veiculo? Veiculo { get; set; } = null;
 
@@ -30,6 +30,7 @@ namespace EstacionamentoBemSeguro.Models
         public Vaga(Type tipo)
         {
             this.Tipo = tipo;
+            this.Id = Guid.NewGuid();
         }
 
     }

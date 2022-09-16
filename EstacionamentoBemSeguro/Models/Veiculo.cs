@@ -8,7 +8,7 @@ namespace EstacionamentoBemSeguro.Models
 {
     internal class Veiculo
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         public string Nome { get; set; } = "";
         public string Placa { get; set; } = "";
         public Type Tipo { get; set; }
@@ -30,6 +30,13 @@ namespace EstacionamentoBemSeguro.Models
             this.Nome = nome;
             this.Placa = placa;
             this.Tipo = tipo;
+            this.Id = Guid.NewGuid();
         }
+
+        public override string ToString()
+        {
+            return $"Nome: {Nome} | Placa: {Placa} | Tipo: {Tipo.ToString()}";
+        }
+
     }
 }
