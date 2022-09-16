@@ -35,7 +35,7 @@ namespace EstacionamentoBemSeguro.Models
 
         public override string ToString()
         {
-            return $"Nome: {Nome} | Placa: {Placa} | Tipo: {Tipo.ToString()}";
+            return $"Veículo: {Nome} | Placa: {Placa} | Tipo: {Tipo.ToString()}";
         }
 
     }

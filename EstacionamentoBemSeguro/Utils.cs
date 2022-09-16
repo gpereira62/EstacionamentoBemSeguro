@@ -29,7 +29,7 @@ namespace EstacionamentoBemSeguro
                             if (!string.IsNullOrEmpty(entrada))
                                 continuarLoop = false;
                             break;
-                        case ConsoleKey key when ((ConsoleKey.Y == key) || (ConsoleKey.N == key) &&
+                        case ConsoleKey key when ((ConsoleKey.S == key) || (ConsoleKey.N == key) &&
                                                     entrada.Length == 0):
                             entrada += cki.KeyChar;
                             Console.Write(cki.KeyChar);

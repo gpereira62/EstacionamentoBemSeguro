@@ -45,9 +45,9 @@ namespace EstacionamentoBemSeguro.Models
             List<Veiculo> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).ToList();
             IDictionary<int, Veiculo> dicVeiculosEstacionados = new Dictionary<int, Veiculo>();
 
-            for (int i = 1; i < veiculosEstacionados.Count(); i++)
+            for (int i = 0; i < veiculosEstacionados.Count(); i++)
             {
-                dicVeiculosEstacionados.Add(i, veiculosEstacionados[i]);
+                dicVeiculosEstacionados.Add(i + 1, veiculosEstacionados[i]);
             }
 
             return dicVeiculosEstacionados;
