@@ -32,7 +32,7 @@ while (fechar)
     Console.WriteLine("\r\n------------ Bem Vindo ao Estacionamento Bem Seguro ------------");
 
     Console.WriteLine($"\r\n    Preço cobrado por hora    R$ {estacionamento.PrecoHora.ToString("N2")}");
-    Console.WriteLine($"    Valor do Caixa atualmente R$ {estacionamento.Caixa.ToString("N2")}");
+    Console.WriteLine($"    Valor do caixa atualmente R$ {estacionamento.Caixa.ToString("N2")}");
 
     Console.WriteLine("\r\n----------------------------------------------------------------");
 
@@ -74,7 +74,13 @@ while (fechar)
             break;
         case Saida_Veiculo:
             Console.Clear();
-            SaidaVeiculo(estacionamento);
+            if (estacionamento.TotalVagasOcupadas() > 0)
+            {
+                SaidaVeiculo(estacionamento);
+            } else
+            {
+                estacionamento.Avisos.Add(new Aviso("Não há nenhum veículo estacionado!"));
+            }
             break;
         default:
             estacionamento.Avisos.Add(new Aviso("Opção Invalida! Tente Novamente."));
@@ -130,14 +136,25 @@ static void SaidaVeiculo(Estacionamento estacionamento)
         Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculoEncontrado.ToString()}?");
         Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
         string resposta = Utils.LerRespostaPergunta().ToLower();
-        if (resposta.Equals("y"))
-        {
-            CobrancaSaida(estacionamento, veiculoEncontrado);
-        }
-        else
+        if (resposta.Equals("n"))
         {
             estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));
+            break;
         }
+
+        Console.Clear();
+        bool pagamentoRealizado = PagamentoSaida(estacionamento, veiculoEncontrado);
+
+        if (!pagamentoRealizado)
+        {
+            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada! Pagamento não realizado."));
+            break;
+        }
+
+        estacionamento.ExcluirVeiculo(veiculoEncontrado);
+
+        estacionamento.Avisos.Add(new Aviso("Saída de veículo concluída com sucesso!"));
+        break;
 
     }
 }
@@ -149,11 +166,13 @@ static void MostrarListaVeiculosEstacionados(IDictionary<int, Veiculo> dicVeicul
         Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value.ToString()}");
 }
 
-static void CobrancaSaida(Estacionamento estacionamento, Veiculo? veiculo)
+static bool PagamentoSaida(Estacionamento estacionamento, Veiculo? veiculo)
 {
+    bool pagamentoRealizado = true;
+
     double valorCobrado = new();
-    DateTime dataHoraSaida = new();
-    TimeSpan tempoEstacionado = veiculo.DataHoraEntrada - dataHoraSaida;
+    DateTime dataHoraSaida = DateTime.Now;
+    TimeSpan tempoEstacionado = dataHoraSaida - veiculo.DataHoraEntrada;
 
     if (tempoEstacionado.Hours < 1)
     {
@@ -163,10 +182,21 @@ static void CobrancaSaida(Estacionamento estacionamento, Veiculo? veiculo)
         valorCobrado = int.Parse(tempoEstacionado.Hours.ToString()) * estacionamento.PrecoHora;
     }
 
-    Console.WriteLine($"Preço por hora R$ {estacionamento.PrecoHora}.");
-    Console.WriteLine($"Tempo que o carro ficou estacionado {tempoEstacionado.ToString("HH:mm")}.");
+    Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
+    Console.WriteLine($"Preço por hora            R$ {estacionamento.PrecoHora.ToString("N2")}");
     Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
-    Console.ReadLine();
+
+    Console.WriteLine("\r\nPagamento foi realizado ?");
+    Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
+    string resposta = Utils.LerRespostaPergunta().ToLower();
+    if (resposta.Equals("n"))
+    {
+        pagamentoRealizado = false;
+    }
+
+    estacionamento.Caixa += valorCobrado;
+
+    return pagamentoRealizado;
 }
 
 static void MostraUltimasMensagens(Estacionamento estacionamento)

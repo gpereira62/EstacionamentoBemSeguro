@@ -12,7 +12,7 @@ namespace EstacionamentoBemSeguro.Models
         public string Nome { get; set; } = "";
         public string Placa { get; set; } = "";
         public Type Tipo { get; set; }
-        public DateTime DataHoraEntrada { get; set; } = new();
+        public DateTime DataHoraEntrada { get; set; }
 
         public enum Type
         {
@@ -23,6 +23,8 @@ namespace EstacionamentoBemSeguro.Models
         public Veiculo(Type tipo)
         {
             this.Tipo = tipo;
+            this.Id = Guid.NewGuid();
+            this.DataHoraEntrada = DateTime.Now;
         }
 
         public Veiculo(string nome, string placa, Type tipo)
@@ -31,6 +33,7 @@ namespace EstacionamentoBemSeguro.Models
             this.Placa = placa;
             this.Tipo = tipo;
             this.Id = Guid.NewGuid();
+            this.DataHoraEntrada = DateTime.Now;
         }
 
         public override string ToString()

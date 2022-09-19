@@ -10,7 +10,6 @@ namespace EstacionamentoBemSeguro.Models
     internal class Estacionamento
     {
         public List<Vaga> Vagas { get; set; } = new();
-        //public List<Veiculo> Veiculos { get; set; } = new();
         public double PrecoHora { get; set; }
         public int QtdeVagaPequena { get; set; }
         public int QtdeVagaMedia { get; set; }
@@ -42,7 +41,7 @@ namespace EstacionamentoBemSeguro.Models
 
         public IDictionary<int, Veiculo> RetornaDicVeiculosEstacionados()
         {
-            List<Veiculo> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).ToList();
+            List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).ToList();
             IDictionary<int, Veiculo> dicVeiculosEstacionados = new Dictionary<int, Veiculo>();
 
             for (int i = 0; i < veiculosEstacionados.Count(); i++)
@@ -66,6 +65,11 @@ namespace EstacionamentoBemSeguro.Models
         public Vaga? EncontrarVagaGrande()
         {
             return Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).FirstOrDefault();
+        }
+
+        public Vaga? EncontrarVaga(Guid idVeiculo)
+        {
+            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo.Id == idVeiculo).FirstOrDefault();
         }
 
         public void EstacionarVeiculo(Veiculo veiculo)
@@ -108,6 +112,15 @@ namespace EstacionamentoBemSeguro.Models
                 }
             }
             return retornaMensagens;
+        }
+
+        public void ExcluirVeiculo(Veiculo veiculo)
+        {
+            Vaga? vagaEncontrada = EncontrarVaga(veiculo.Id);
+            Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
+            vagaAlterada.Veiculo = null;
+            vagaAlterada.Status = State.Disponivel;
+
         }
 
         //public void SaidaVeiculo(Veiculo? veiculo)
