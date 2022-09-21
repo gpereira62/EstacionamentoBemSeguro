@@ -59,6 +59,54 @@ namespace EstacionamentoBemSeguro.Models
             return Vagas.Where(x => x.Veiculo is not null).Where(y => y.Veiculo.Tipo == Veiculo.Type.Van).Any();
         }
 
+        public bool PodeEstacionarMoto()
+        {
+            bool podeEstacionar = Vagas.Where(x => x.Status == State.Disponivel).Any();
+
+            if (!podeEstacionar)
+                Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a moto!"));
+
+            return podeEstacionar;
+        }
+
+        public bool PodeEstacionarCarro()
+        {
+            bool podeEstacionar = false;
+
+            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Media).Where(y => y.Status == State.Disponivel).Any();
+
+            if (podeEstacionar)
+                return podeEstacionar;
+
+            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).Any();
+
+            if (!podeEstacionar)
+                Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar o carro!"));
+
+            return podeEstacionar;
+        }
+
+        public bool PodeEstacionarVan()
+        {
+            bool podeEstacionar = false;
+
+            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).Any();
+
+            if (podeEstacionar)
+                return podeEstacionar;
+
+            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Media)
+                                .Where(y => y.Status == State.Disponivel)
+                                .Take(3)
+                                .ToList()
+                                .Select(x => x != null).Count() == 3;
+
+            if (!podeEstacionar)
+                Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
+
+            return podeEstacionar;
+        }
+
         public IDictionary<int, Veiculo> RetornaDicVeiculosEstacionados()
         {
             List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).Distinct().OrderBy(x => x.DataHoraEntrada).ToList();
@@ -159,7 +207,10 @@ namespace EstacionamentoBemSeguro.Models
                     Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
                     vagaAlterada.Veiculo = veiculo;
                     vagaAlterada.Status = State.Ocupada;
-                } else
+
+                    Avisos.Add(new Aviso("Moto estacionada com sucesso!"));
+                }
+                else
                 {
                     Avisos.Add(new Aviso("Vaga para moto não encontrada!"));
                 }
@@ -173,6 +224,8 @@ namespace EstacionamentoBemSeguro.Models
                     Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
                     vagaAlterada.Veiculo = veiculo;
                     vagaAlterada.Status = State.Ocupada;
+
+                    Avisos.Add(new Aviso("Carro estacionado com sucesso!"));
                 }
                 else
                 {
@@ -188,6 +241,9 @@ namespace EstacionamentoBemSeguro.Models
                     Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
                     vagaAlterada.Veiculo = veiculo;
                     vagaAlterada.Status = State.Ocupada;
+
+                    Avisos.Add(new Aviso("Van estacionada com sucesso!"));
+
                     return;
                 }
 
@@ -204,6 +260,8 @@ namespace EstacionamentoBemSeguro.Models
                         vagaAlterada.Status = State.Ocupada;
                     }
 
+                    Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
+
                     return;
                 } else
                 {
@@ -211,23 +269,6 @@ namespace EstacionamentoBemSeguro.Models
                 }
 
             }
-        }
-
-        public string MostrarMensagens()
-        {
-            string retornaMensagens = "";
-            foreach (var aviso in Avisos)
-            {
-                if (string.IsNullOrEmpty(retornaMensagens))
-                {
-                    retornaMensagens = aviso.Mensagem;
-                }
-                else
-                {
-                    retornaMensagens += $"\r\n        {aviso.Mensagem}";
-                }
-            }
-            return retornaMensagens;
         }
 
         public void ExcluirVeiculo(Veiculo veiculo)
