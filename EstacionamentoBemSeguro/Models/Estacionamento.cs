@@ -54,6 +54,11 @@ namespace EstacionamentoBemSeguro.Models
             return Vagas.Where(x => x.Status == State.Ocupada).Count();
         }
 
+        public bool ExisteVanEstacionada()
+        {
+            return Vagas.Where(x => x.Veiculo is not null).Where(y => y.Veiculo.Tipo == Veiculo.Type.Van).Any();
+        }
+
         public IDictionary<int, Veiculo> RetornaDicVeiculosEstacionados()
         {
             List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).Distinct().OrderBy(x => x.DataHoraEntrada).ToList();
@@ -249,6 +254,16 @@ namespace EstacionamentoBemSeguro.Models
                     vagaAlterada.Status = State.Disponivel;
                 }
             }
+        }
+
+        public List<Vaga> ListaVagasVans()
+        {
+            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo.Tipo == Veiculo.Type.Van).ToList();
+        }
+
+        public bool TemAvisos()
+        {
+            return Avisos.Any();
         }
     }
 }
