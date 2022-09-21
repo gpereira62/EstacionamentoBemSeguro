@@ -13,6 +13,7 @@ namespace EstacionamentoBemSeguro.Models
         public string Placa { get; set; } = "";
         public Type Tipo { get; set; }
         public DateTime DataHoraEntrada { get; set; }
+        public bool isVan { get; set; } = false;
 
         public enum Type
         {
@@ -20,6 +21,7 @@ namespace EstacionamentoBemSeguro.Models
             Moto = 1,
             Van = 2
         }
+
         public Veiculo(Type tipo)
         {
             this.Tipo = tipo;

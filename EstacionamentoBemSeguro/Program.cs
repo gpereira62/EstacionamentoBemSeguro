@@ -6,6 +6,7 @@ const int Estacionar_Moto = 1;
 const int Estacionar_Carro = 2;
 const int Estacionar_Van = 3;
 const int Saida_Veiculo = 4;
+const int Quantas_Vagas_Vans_Ocupadas = 5;
 
 bool fechar = true;
 Estacionamento estacionamento = new();
@@ -36,10 +37,14 @@ while (fechar)
 
     Console.WriteLine("\r\n----------------------------------------------------------------");
 
-    Console.WriteLine($"\r\n    Total de vagas:             {estacionamento.TotalVagas()}");
-    Console.WriteLine($"    Total de vagas disponíveis: {estacionamento.TotalVagasDisponiveis()}");
-    Console.WriteLine($"    Total de vagas ocupadas:    {estacionamento.TotalVagasOcupadas()}");
+    Console.WriteLine($"\r\n    Total de vagas:                        {estacionamento.TotalVagas()}");
+    Console.WriteLine($"    Total de vagas disponíveis:            {estacionamento.TotalVagasDisponiveis()}");
+    Console.WriteLine($"    Total de vagas ocupadas:               {estacionamento.TotalVagasOcupadas()}");
+    Console.WriteLine($"\r\n    Total de vagas disponíveis para moto:  {estacionamento.TotalVagasDisponiveisMoto()}");
+    Console.WriteLine($"    Total de vagas disponíveis para carro: {estacionamento.TotalVagasDisponiveisCarro()}");
+    Console.WriteLine($"    Total de vagas disponíveis para van:   {estacionamento.TotalVagasDisponiveisVan()}");
 
+    ValidaAvisos(estacionamento);
     MostraUltimasMensagens(estacionamento);
 
     Console.WriteLine("\r\n----------------------------------------------------------------");
@@ -52,28 +57,54 @@ while (fechar)
     Console.WriteLine("        0 - Fechar o programa\r\n");
 
     int opcao = int.Parse(Utils.LerNumeros(false));
+
+    Console.Clear();
     switch (opcao)
     {
         case Sair_Programa:
             fechar = false;
             break;
         case Estacionar_Moto:
-            Console.Clear();
-            EstacionarVeiculo(estacionamento, Veiculo.Type.Moto);
-            estacionamento.Avisos.Add(new Aviso("Moto adicionada com sucesso!"));
+            if (estacionamento.TotalVagasDisponiveis() > 0)
+            {
+                EstacionarVeiculo(estacionamento, Veiculo.Type.Moto);
+                estacionamento.Avisos.Add(new Aviso("Moto estacionada com sucesso!"));
+            } else
+            {
+                estacionamento.Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a moto!"));
+            }
+
             break;
         case Estacionar_Carro:
-            Console.Clear();
-            EstacionarVeiculo(estacionamento, Veiculo.Type.Carro);
-            estacionamento.Avisos.Add(new Aviso("Carro adicionado com sucesso!"));
+            if (estacionamento.EncontrarVagaCarro() != null)
+            {
+                EstacionarVeiculo(estacionamento, Veiculo.Type.Carro);
+                estacionamento.Avisos.Add(new Aviso("Carro estacionado com sucesso!"));
+            }
+            else
+            {
+                estacionamento.Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar o carro!"));
+            }
+
             break;
         case Estacionar_Van:
-            Console.Clear();
-            EstacionarVeiculo(estacionamento, Veiculo.Type.Van);
-            estacionamento.Avisos.Add(new Aviso("Van adicionada com sucesso!"));
+            if (estacionamento.EncontrarVagaVan() != null)
+            {
+                EstacionarVeiculo(estacionamento, Veiculo.Type.Van);
+                estacionamento.Avisos.Add(new Aviso("Van estacionada com sucesso!"));
+            }
+            else if (estacionamento.EncontrarTresVagasMediasVan().Select(x => x != null).Count() == 3)
+            {
+                EstacionarVeiculo(estacionamento, Veiculo.Type.Van);
+                estacionamento.Avisos.Add(new Aviso("Vaga grande para van não encontrada! Van estacionada com sucesso em 3 vagas de carro."));
+            }
+            else
+            {
+                estacionamento.Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
+            }
+
             break;
         case Saida_Veiculo:
-            Console.Clear();
             if (estacionamento.TotalVagasOcupadas() > 0)
             {
                 SaidaVeiculo(estacionamento);
@@ -81,6 +112,7 @@ while (fechar)
             {
                 estacionamento.Avisos.Add(new Aviso("Não há nenhum veículo estacionado!"));
             }
+
             break;
         default:
             estacionamento.Avisos.Add(new Aviso("Opção Invalida! Tente Novamente."));
@@ -209,4 +241,36 @@ static void MostraUltimasMensagens(Estacionamento estacionamento)
         Console.WriteLine("        " + estacionamento.MostrarMensagens());
         estacionamento.Avisos.Clear();
     }
+}
+
+static void ValidaAvisos(Estacionamento estacionamento)
+{
+    if (estacionamento.TotalVagasDisponiveis() == 0)
+    {
+        estacionamento.Avisos.Add(new Aviso("Estacionamento Cheio!"));
+    }
+    else
+    {
+        if (estacionamento.TotalVagasDisponiveisMoto() == 0 && estacionamento.QtdeVagaPequena > 0)
+        {
+            estacionamento.Avisos.Add(new Aviso("Todas as vagas pequenas para motos foram ocupadas!"));
+        }
+
+        if (estacionamento.TotalVagasDisponiveisCarro() == 0 && estacionamento.QtdeVagaMedia > 0)
+        {
+            estacionamento.Avisos.Add(new Aviso("Todas as vagas médias para carros foram ocupadas!"));
+        }
+
+        if (estacionamento.TotalVagasDisponiveisVan() == 0 && estacionamento.QtdeVagaGrande > 0)
+        {
+            estacionamento.Avisos.Add(new Aviso("Todas as vagas grandes para vans foram ocupadas!"));
+        }
+    }
+
+    if (estacionamento.TotalVagasOcupadas() == 0)
+    {
+        estacionamento.Avisos.Add(new Aviso("Estacionamento Vazio!"));
+    }
+
+
 }
