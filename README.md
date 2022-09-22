@@ -7,8 +7,7 @@
  <a href="#Requisitos">Orientações</a> •
  <a href="#Tecnologias">Tecnologias</a> •
  <a href="#Testando-a-API">Testando o Projeto</a> •
- <a href="#Autor">Autor</a> •
- <a href="#License">License</a>
+ <a href="#Autor">Autor</a>
 </p>
 
 <h4 align="center">
