@@ -109,7 +109,12 @@ namespace EstacionamentoBemSeguro.Models
 
         public IDictionary<int, Veiculo> RetornaDicVeiculosEstacionados()
         {
-            List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada).Select(y => y.Veiculo).Distinct().OrderBy(x => x.DataHoraEntrada).ToList();
+            List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada)
+                                                        .Select(y => y.Veiculo)
+                                                        .Distinct()
+                                                        .OrderBy(x => x.DataHoraEntrada)
+                                                        .ToList();
+
             IDictionary<int, Veiculo> dicVeiculosEstacionados = new Dictionary<int, Veiculo>();
 
             for (int i = 0; i < veiculosEstacionados.Count(); i++)
@@ -305,6 +310,25 @@ namespace EstacionamentoBemSeguro.Models
         public bool TemAvisos()
         {
             return Avisos.Any();
+        }
+
+        public Tuple<double, TimeSpan> InfoPagamentoSaida(Veiculo veiculo)
+        {
+
+            double valorCobrado = new();
+            DateTime dataHoraSaida = DateTime.Now;
+            TimeSpan tempoEstacionado = dataHoraSaida - veiculo.DataHoraEntrada;
+
+            if (tempoEstacionado.Hours < 1)
+            {
+                valorCobrado = PrecoHora;
+            }
+            else
+            {
+                valorCobrado = int.Parse(tempoEstacionado.Hours.ToString()) * PrecoHora;
+            }
+
+            return new Tuple<double, TimeSpan>(valorCobrado, tempoEstacionado);
         }
     }
 }

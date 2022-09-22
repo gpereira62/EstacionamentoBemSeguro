@@ -57,6 +57,48 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine($"    Total de vagas disponíveis para van:   {estacionamento.TotalVagasDisponiveisVan()}");
         }
 
+        public int PegarInfoSaidaVeiculo(Estacionamento estacionamento)
+        {
+            Console.Clear();
+
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("----------------------- Saída de Veículo -----------------------");
+            Console.WriteLine("----------------------------------------------------------------");
+
+            if (estacionamento.TemAvisos())
+            {
+                MostraAvisos(estacionamento);
+                Console.WriteLine("\r\n----------------------------------------------------------------");
+            }
+
+            MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
+            Console.WriteLine("        0 - Cancelar saída de veículo");
+
+            Console.WriteLine("\r\nDigite uma opções númericas para realizar a saída do veículo ou digite '0' para voltar ao menu principal:");
+            return int.Parse(Utils.LerNumeros(false));
+        }
+
+        private void MostrarListaVeiculosEstacionados(IDictionary<int, Veiculo> dicVeiculosEstacionados)
+        {
+            Console.WriteLine("\r\n    Veículos:\r\n");
+            foreach (var dicVeiculo in dicVeiculosEstacionados)
+                Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value.ToString()}");
+        }
+
+        public bool ConfirmarSaidaVeiculo(Veiculo veiculo)
+        {
+            Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculo.ToString()}?");
+            Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
+            string resposta = Utils.LerRespostaPergunta().ToLower();
+
+            if (resposta.Equals("n"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void MostraAvisos(Estacionamento estacionamento)
         {
             if (estacionamento.TemAvisos())
@@ -138,6 +180,23 @@ namespace EstacionamentoBemSeguro.Views
             veiculo.Placa = Utils.LerStrings();
 
             return veiculo;
+        }
+
+        public bool ChecarPagamentoSaida(double valorCobrado, TimeSpan tempoEstacionado, double precoHora)
+        {
+            Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
+            Console.WriteLine($"Preço por hora            R$ {precoHora.ToString("N2")}");
+            Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
+
+            Console.WriteLine("\r\nPagamento foi realizado ?");
+            Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
+            string resposta = Utils.LerRespostaPergunta().ToLower();
+            if (resposta.Equals("n"))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

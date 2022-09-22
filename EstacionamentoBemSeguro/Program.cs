@@ -207,111 +207,112 @@ estacionamentoController.IniciarEstacionamento();
 //    }
 //}
 
-//static void SaidaVeiculo(Estacionamento estacionamento)
-//{
+static void SaidaVeiculo(Estacionamento estacionamento)
+{
 
-//    IDictionary<int, Veiculo> dicVeiculosEstacionados = estacionamento.RetornaDicVeiculosEstacionados();
+    IDictionary<int, Veiculo> dicVeiculosEstacionados = estacionamento.RetornaDicVeiculosEstacionados();
 
-//    while (true)
-//    {
-//        Console.Clear();
+    while (true)
+    {
+        Console.Clear();
 
-//        Console.WriteLine("\r\n----------------------------------------------------------------");
-//        Console.WriteLine("----------------------- Saída de Veículo -----------------------");
-//        Console.WriteLine("----------------------------------------------------------------");
+        Console.WriteLine("\r\n----------------------------------------------------------------");
+        Console.WriteLine("----------------------- Saída de Veículo -----------------------");
+        Console.WriteLine("----------------------------------------------------------------");
 
-//        if (estacionamento.TemAvisos())
-//        {
-//            MostraAvisos(estacionamento);
-//            Console.WriteLine("\r\n----------------------------------------------------------------");
-//        }
+        if (estacionamento.TemAvisos())
+        {
+            //MostraAvisos(estacionamento);
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+        }
 
 
-//        MostrarListaVeiculosEstacionados(dicVeiculosEstacionados);
-//        Console.WriteLine("        0 - Cancelar saída de veículo");
+        MostrarListaVeiculosEstacionados(dicVeiculosEstacionados);
+        Console.WriteLine("        0 - Cancelar saída de veículo");
 
-//        Console.WriteLine("\r\nDigite uma opções númericas para realizar a saída do veículo ou digite '0' para voltar ao menu principal:");
-//        int opcao = int.Parse(Utils.LerNumeros(false));
+        Console.WriteLine("\r\nDigite uma opções númericas para realizar a saída do veículo ou digite '0' para voltar ao menu principal:");
+        int opcao = int.Parse(Utils.LerNumeros(false));
 
-//        if (opcao == 0)
-//        {
-//            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));
-//            break;
-//        }
+        if (opcao == 0)
+        {
+            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));
+            break;
+        }
 
-//        dicVeiculosEstacionados.TryGetValue(opcao, out Veiculo? veiculoEncontrado);
+        dicVeiculosEstacionados.TryGetValue(opcao, out Veiculo? veiculoEncontrado);
 
-//        if (veiculoEncontrado is null)
-//        {
-//            estacionamento.Avisos.Add(new Aviso("Veículo não encontrado! Tente novamente."));
-//            continue;
-//        }
+        if (veiculoEncontrado is null)
+        {
+            estacionamento.Avisos.Add(new Aviso("Veículo não encontrado! Tente novamente."));
+            continue;
+        }
 
-//        Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculoEncontrado.ToString()}?");
-//        Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
-//        string resposta = Utils.LerRespostaPergunta().ToLower();
-//        if (resposta.Equals("n"))
-//        {
-//            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));
-//            break;
-//        }
+        Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculoEncontrado.ToString()}?");
+        Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
+        string resposta = Utils.LerRespostaPergunta().ToLower();
+        if (resposta.Equals("n"))
+        {
+            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));
+            break;
+        }
 
-//        Console.Clear();
-//        bool pagamentoRealizado = PagamentoSaida(estacionamento, veiculoEncontrado);
+        Console.Clear();
+        bool pagamentoRealizado = PagamentoSaida(estacionamento, veiculoEncontrado);
 
-//        if (!pagamentoRealizado)
-//        {
-//            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada! Pagamento não realizado."));
-//            break;
-//        }
+        if (!pagamentoRealizado)
+        {
+            estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada! Pagamento não realizado."));
+            break;
+        }
 
-//        estacionamento.ExcluirVeiculo(veiculoEncontrado);
+        estacionamento.ExcluirVeiculo(veiculoEncontrado);
 
-//        estacionamento.Avisos.Add(new Aviso("Saída de veículo concluída com sucesso!"));
-//        break;
+        estacionamento.Avisos.Add(new Aviso("Saída de veículo concluída com sucesso!"));
+        break;
 
-//    }
-//}
+    }
+}
 
-//static void MostrarListaVeiculosEstacionados(IDictionary<int, Veiculo> dicVeiculosEstacionados)
-//{
-//    Console.WriteLine("\r\n    Veículos:\r\n");
-//    foreach (var dicVeiculo in dicVeiculosEstacionados)
-//        Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value.ToString()}");
-//}
+static void MostrarListaVeiculosEstacionados(IDictionary<int, Veiculo> dicVeiculosEstacionados)
+{
+    Console.WriteLine("\r\n    Veículos:\r\n");
+    foreach (var dicVeiculo in dicVeiculosEstacionados)
+        Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value.ToString()}");
+}
 
-//static bool PagamentoSaida(Estacionamento estacionamento, Veiculo? veiculo)
-//{
-//    bool pagamentoRealizado = true;
+static bool PagamentoSaida(Estacionamento estacionamento, Veiculo? veiculo)
+{
+    bool pagamentoRealizado = true;
 
-//    double valorCobrado = new();
-//    DateTime dataHoraSaida = DateTime.Now;
-//    TimeSpan tempoEstacionado = dataHoraSaida - veiculo.DataHoraEntrada;
+    double valorCobrado = new();
+    DateTime dataHoraSaida = DateTime.Now;
+    TimeSpan tempoEstacionado = dataHoraSaida - veiculo.DataHoraEntrada;
 
-//    if (tempoEstacionado.Hours < 1)
-//    {
-//        valorCobrado = estacionamento.PrecoHora;
-//    } else
-//    {
-//        valorCobrado = int.Parse(tempoEstacionado.Hours.ToString()) * estacionamento.PrecoHora;
-//    }
+    if (tempoEstacionado.Hours < 1)
+    {
+        valorCobrado = estacionamento.PrecoHora;
+    }
+    else
+    {
+        valorCobrado = int.Parse(tempoEstacionado.Hours.ToString()) * estacionamento.PrecoHora;
+    }
 
-//    Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
-//    Console.WriteLine($"Preço por hora            R$ {estacionamento.PrecoHora.ToString("N2")}");
-//    Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
+    Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
+    Console.WriteLine($"Preço por hora            R$ {estacionamento.PrecoHora.ToString("N2")}");
+    Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
 
-//    Console.WriteLine("\r\nPagamento foi realizado ?");
-//    Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
-//    string resposta = Utils.LerRespostaPergunta().ToLower();
-//    if (resposta.Equals("n"))
-//    {
-//        pagamentoRealizado = false;
-//    }
+    Console.WriteLine("\r\nPagamento foi realizado ?");
+    Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
+    string resposta = Utils.LerRespostaPergunta().ToLower();
+    if (resposta.Equals("n"))
+    {
+        pagamentoRealizado = false;
+    }
 
-//    estacionamento.Caixa += valorCobrado;
+    estacionamento.Caixa += valorCobrado;
 
-//    return pagamentoRealizado;
-//}
+    return pagamentoRealizado;
+}
 
 //static void MostraAvisos(Estacionamento estacionamento)
 //{
