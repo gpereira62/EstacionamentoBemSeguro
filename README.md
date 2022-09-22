@@ -6,7 +6,7 @@
  <a href="#Requisitos">Requisitos</a> •
  <a href="#Requisitos">Orientações</a> •
  <a href="#Tecnologias">Tecnologias</a> •
- <a href="#Testando-a-API">Testando o Projeto</a> •
+ <a href="#Testando-o-Projeto">Testando o Projeto</a> •
  <a href="#Autor">Autor</a>
 </p>
 
