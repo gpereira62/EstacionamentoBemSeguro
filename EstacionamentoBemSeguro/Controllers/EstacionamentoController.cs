@@ -83,26 +83,26 @@ namespace EstacionamentoBemSeguro.Controllers
                             }
 
                             break;
-                            //case Opcoes.QuantasVagasVansOcupam:
-                            //    if (Estacionamento.ExisteVanEstacionada())
-                            //    {
-                            //        QuantasVagasVansOcupam(Estacionamento);
-                            //    }
-                            //    else
-                            //    {
-                            //        Estacionamento.Avisos.Add(new Aviso("Não há nenhuma van estacionada!"));
-                            //    }
-                            //    break;
-                            //case Opcoes.ListarVeiculosEstacionados:
-                            //    if (Estacionamento.TotalVagasOcupadas() > 0)
-                            //    {
-                            //        ListarVeiculosEstacionados(Estacionamento);
-                            //    }
-                            //    else
-                            //    {
-                            //        Estacionamento.Avisos.Add(new Aviso("Não há nenhum veículo estacionado!"));
-                            //    }
-                            //    break;
+                        case Opcoes.QuantasVagasVansOcupam:
+                            if (Estacionamento.ExisteVanEstacionada())
+                            {
+                                EstacionamentoView.QuantasVagasVansOcupam(Estacionamento);
+                            }
+                            else
+                            {
+                                Estacionamento.Avisos.Add(new Aviso("Não há nenhuma van estacionada!"));
+                            }
+                            break;
+                        case Opcoes.ListarVeiculosEstacionados:
+                            if (Estacionamento.TotalVagasOcupadas() > 0)
+                            {
+                                EstacionamentoView.ListarVeiculosEstacionados(Estacionamento);
+                            }
+                            else
+                            {
+                                Estacionamento.Avisos.Add(new Aviso("Não há nenhum veículo estacionado!"));
+                            }
+                            break;
                     }
                 }
                 catch (Exception)
@@ -110,8 +110,6 @@ namespace EstacionamentoBemSeguro.Controllers
                     Estacionamento.Avisos.Add(new Aviso("Opção Invalida! Tente Novamente."));
                     continue;
                 }
-
-                
             }
         }
 

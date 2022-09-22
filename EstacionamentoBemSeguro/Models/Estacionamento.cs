@@ -304,7 +304,11 @@ namespace EstacionamentoBemSeguro.Models
 
         public List<Vaga> ListaVagasVans()
         {
-            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo.Tipo == Veiculo.Type.Van).ToList();
+            return Vagas.Where(x => x.Veiculo is not null)
+                        .Where(x => x.Veiculo.Tipo == Veiculo.Type.Van)
+                        .ToList()
+                        .DistinctBy(x => x.Veiculo)
+                        .ToList();
         }
 
         public bool TemAvisos()

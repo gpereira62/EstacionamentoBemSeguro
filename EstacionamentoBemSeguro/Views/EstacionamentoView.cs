@@ -198,5 +198,57 @@ namespace EstacionamentoBemSeguro.Views
 
             return true;
         }
+
+        public void QuantasVagasVansOcupam(Estacionamento estacionamento)
+        {
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("---------------- Quantas Vagas as Vans Ocupam? -----------------");
+            Console.WriteLine("----------------------------------------------------------------");
+
+            string retorno = "";
+            List<Vaga> vagasVansOcupam = estacionamento.ListaVagasVans();
+
+            foreach (var vaga in vagasVansOcupam)
+            {
+                if (vaga.Veiculo != null)
+                {
+                    if (vaga.Tipo == Vaga.Type.Media && vaga.Veiculo.Tipo == Veiculo.Type.Van)
+                    {
+                        if (retorno.Equals(""))
+                        {
+                            retorno += $"\r\n   Van: {vaga.Veiculo.Nome} - está ocupando 3 vagas médias de carro";
+                        }
+                        else
+                        {
+                            retorno += $"\n   Van: {vaga.Veiculo.Nome} - está ocupando 3 vagas médias de carro";
+                        }
+                    }
+                    else
+                    {
+                        if (retorno.Equals(""))
+                        {
+                            retorno += $"\r\n   Van: {vaga.Veiculo.Nome} - está ocupando 1 vaga grande";
+                        }
+                        else
+                        {
+                            retorno += $"\n   Van: {vaga.Veiculo.Nome} - está ocupando 1 vaga grande";
+                        }
+                    }
+                }
+
+            }
+
+            Console.WriteLine(retorno);
+
+            Console.WriteLine("\r\n Aperte Enter para voltar ao menu principal");
+            Console.ReadLine();
+        }
+
+        public void ListarVeiculosEstacionados(Estacionamento estacionamento)
+        {
+            MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
+            Console.WriteLine("\r\n Aperte Enter para voltar ao menu principal");
+            Console.ReadLine();
+        }
     }
 }
