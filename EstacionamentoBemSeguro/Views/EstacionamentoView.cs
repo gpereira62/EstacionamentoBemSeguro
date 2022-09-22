@@ -68,7 +68,6 @@ namespace EstacionamentoBemSeguro.Views
             if (estacionamento.TemAvisos())
             {
                 MostraAvisos(estacionamento);
-                Console.WriteLine("\r\n----------------------------------------------------------------");
             }
 
             MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
@@ -196,6 +195,11 @@ namespace EstacionamentoBemSeguro.Views
 
         public bool ChecarPagamentoSaida(double valorCobrado, TimeSpan tempoEstacionado, double precoHora)
         {
+
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("--------------------------- Pagamento --------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
+
             Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
             Console.WriteLine($"Preço por hora            R$ {precoHora.ToString("N2")}");
             Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
