@@ -256,7 +256,7 @@ namespace EstacionamentoBemSeguro.Models
 
                 if (VagasMedias.Select(x => x != null).Count() == 3)
                 {
-                    veiculo.isVan = true;
+                    veiculo.OcupaVagaMedia = true;
 
                     foreach (Vaga vaga in VagasMedias)
                     {
@@ -278,7 +278,7 @@ namespace EstacionamentoBemSeguro.Models
 
         public void ExcluirVeiculo(Veiculo veiculo)
         {
-            if (veiculo.isVan)
+            if (veiculo.OcupaVagaMedia)
             {
                 List<Vaga> vagasEncontradas = EncontrarVagaMediaVan(veiculo.Id);
 

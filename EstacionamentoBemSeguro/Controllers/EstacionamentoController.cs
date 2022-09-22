@@ -53,7 +53,16 @@ namespace EstacionamentoBemSeguro.Controllers
                         case Opcoes.EstacionarMoto:
                             if (Estacionamento.PodeEstacionarMoto())
                             {
-                                Estacionamento.EstacionarVeiculo(EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Moto));
+                                Veiculo? veiculo = EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Moto);
+
+                                if(veiculo is not null)
+                                {
+                                    Estacionamento.EstacionarVeiculo(veiculo);
+                                }
+                                else 
+                                {
+                                    Estacionamento.Avisos.Add(new Aviso("Operação de estacionar moto cancelada!"));
+                                }
                             }
 
                             break;
@@ -61,14 +70,32 @@ namespace EstacionamentoBemSeguro.Controllers
 
                             if (Estacionamento.PodeEstacionarCarro())
                             {
-                                Estacionamento.EstacionarVeiculo(EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Carro));
+                                Veiculo? veiculo = EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Carro);
+
+                                if (veiculo is not null)
+                                {
+                                    Estacionamento.EstacionarVeiculo(veiculo);
+                                }
+                                else
+                                {
+                                    Estacionamento.Avisos.Add(new Aviso("Operação de estacionar carro cancelado!"));
+                                }
                             }
 
                             break;
                         case Opcoes.EstacionarVan:
                             if (Estacionamento.PodeEstacionarVan())
                             {
-                                Estacionamento.EstacionarVeiculo(EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Van));
+                                Veiculo? veiculo = EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Van);
+
+                                if (veiculo is not null)
+                                {
+                                    Estacionamento.EstacionarVeiculo(veiculo);
+                                }
+                                else
+                                {
+                                    Estacionamento.Avisos.Add(new Aviso("Operação de estacionar van cancelado!"));
+                                }
                             }
 
                             break;
@@ -163,7 +190,9 @@ namespace EstacionamentoBemSeguro.Controllers
             bool pagamentoRealizado = true;
 
             var info = Estacionamento.InfoPagamentoSaida(veiculo);
-            if (EstacionamentoView.ChecarPagamentoSaida(info.Item1, info.Item2, Estacionamento.PrecoHora))
+            pagamentoRealizado = EstacionamentoView.ChecarPagamentoSaida(info.Item1, info.Item2, Estacionamento.PrecoHora);
+
+            if (pagamentoRealizado)
             {
                 Estacionamento.Caixa += info.Item1;
             }

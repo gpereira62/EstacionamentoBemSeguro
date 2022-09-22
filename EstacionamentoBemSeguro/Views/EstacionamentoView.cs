@@ -17,7 +17,7 @@ namespace EstacionamentoBemSeguro.Views
         public Estacionamento PegarConfiguracoesIniciais(Estacionamento estacionamento)
         {
             Console.WriteLine("\r\n----------------------------------------------------------------");
-            Console.WriteLine("-------------------- Configurações Inicias ---------------------");
+            Console.WriteLine("-------------------- Configurações Iniciais --------------------");
             Console.WriteLine("----------------------------------------------------------------");
 
             Console.WriteLine("\r\nQuantas vagas pequenas para motos terão?");
@@ -29,7 +29,7 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("\r\n\r\nQuantas vagas grandes para vans terão?");
             estacionamento.QtdeVagaGrande = int.Parse(Utils.LerNumeros(false));
 
-            Console.WriteLine("\r\n\r\nQual o preço que será cobrado por hora?");
+            Console.WriteLine("\r\n\r\nQual é o preço que será cobrado por hora?");
             Console.Write("R$ ");
             estacionamento.PrecoHora = double.Parse(Utils.LerNumeros(true));
 
@@ -74,7 +74,7 @@ namespace EstacionamentoBemSeguro.Views
             MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
             Console.WriteLine("        0 - Cancelar saída de veículo");
 
-            Console.WriteLine("\r\nDigite uma opções númericas para realizar a saída do veículo ou digite '0' para voltar ao menu principal:");
+            Console.WriteLine("\r\nDigite uma das opções númericas para realizar a saída do veículo ou digite '0' para voltar ao menu principal:");
             return int.Parse(Utils.LerNumeros(false));
         }
 
@@ -132,8 +132,8 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("        2 - Estacionar um carro");
             Console.WriteLine("        3 - Estacionar uma van");
             Console.WriteLine("        4 - Saída de veículo");
-            Console.WriteLine("        5 - Quantas vagas as vans ocupam");
-            Console.WriteLine("        6 - Listar Veículos Estacionados");
+            Console.WriteLine("        5 - Quantas vagas as vans ocupam?");
+            Console.WriteLine("        6 - Listar veículos estacionados");
             Console.WriteLine("        0 - Fechar o programa\r\n");
 
             Opcoes opcao = (Opcoes)int.Parse(Utils.LerNumeros(false));
@@ -167,17 +167,29 @@ namespace EstacionamentoBemSeguro.Views
             }
         }
 
-        public Veiculo PegarInfoVeiculo(Veiculo.Type tipo)
+        public Veiculo? PegarInfoVeiculo(Veiculo.Type tipo)
         {
             MostrarTitulo(tipo);
 
             Veiculo veiculo = new(tipo);
 
+            Console.WriteLine("\r\nDigite 'sair' em qualquer momento para voltar ao menu principal!");
+
             Console.WriteLine("\r\nDigite qual é o veículo:");
             veiculo.Nome = Utils.LerStrings();
 
+            if (veiculo.Nome.ToLower().Equals("sair"))
+            {
+                return null;
+            }
+
             Console.WriteLine("\r\n\r\nDigite a placa do veículo:");
             veiculo.Placa = Utils.LerStrings();
+
+            if (veiculo.Placa.ToLower().Equals("sair"))
+            {
+                return null;
+            }
 
             return veiculo;
         }
@@ -240,14 +252,14 @@ namespace EstacionamentoBemSeguro.Views
 
             Console.WriteLine(retorno);
 
-            Console.WriteLine("\r\n Aperte Enter para voltar ao menu principal");
+            Console.WriteLine("\r\nAperte enter para voltar ao menu principal");
             Console.ReadLine();
         }
 
         public void ListarVeiculosEstacionados(Estacionamento estacionamento)
         {
             MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
-            Console.WriteLine("\r\n Aperte Enter para voltar ao menu principal");
+            Console.WriteLine("\r\nAperte enter para voltar ao menu principal");
             Console.ReadLine();
         }
     }

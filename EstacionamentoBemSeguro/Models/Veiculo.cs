@@ -13,7 +13,7 @@ namespace EstacionamentoBemSeguro.Models
         public string Placa { get; set; } = "";
         public Type Tipo { get; set; }
         public DateTime DataHoraEntrada { get; set; }
-        public bool isVan { get; set; } = false;
+        public bool OcupaVagaMedia { get; set; } = false;
 
         public enum Type
         {
