@@ -56,7 +56,7 @@ namespace EstacionamentoBemSeguro.Models
 
         public bool ExisteVanEstacionada()
         {
-            return Vagas.Where(x => x.Veiculo is not null).Where(y => y.Veiculo.Tipo == Veiculo.Type.Van).Any();
+            return Vagas.Where(x => x.Veiculo is not null).Where(y => y.Veiculo?.Tipo == Veiculo.Type.Van).Any();
         }
 
         public bool PodeEstacionarMoto()
@@ -112,7 +112,7 @@ namespace EstacionamentoBemSeguro.Models
             List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada)
                                                         .Select(y => y.Veiculo)
                                                         .Distinct()
-                                                        .OrderBy(x => x.DataHoraEntrada)
+                                                        .OrderBy(x => x?.DataHoraEntrada)
                                                         .ToList();
 
             IDictionary<int, Veiculo> dicVeiculosEstacionados = new Dictionary<int, Veiculo>();
@@ -193,12 +193,12 @@ namespace EstacionamentoBemSeguro.Models
 
         public Vaga? EncontrarVaga(Guid idVeiculo)
         {
-            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo.Id == idVeiculo).FirstOrDefault();
+            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo?.Id == idVeiculo).FirstOrDefault();
         }
 
         public List<Vaga> EncontrarVagaMediaVan(Guid idVeiculo)
         {
-            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo.Id == idVeiculo).ToList();
+            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo?.Id == idVeiculo).ToList();
         }
 
         public void EstacionarVeiculo(Veiculo veiculo)
@@ -305,7 +305,7 @@ namespace EstacionamentoBemSeguro.Models
         public List<Vaga> ListaVagasVans()
         {
             return Vagas.Where(x => x.Veiculo is not null)
-                        .Where(x => x.Veiculo.Tipo == Veiculo.Type.Van)
+                        .Where(x => x.Veiculo?.Tipo == Veiculo.Type.Van)
                         .ToList()
                         .DistinctBy(x => x.Veiculo)
                         .ToList();
