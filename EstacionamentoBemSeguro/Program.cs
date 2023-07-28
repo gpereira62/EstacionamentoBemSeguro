@@ -1,6 +1,4 @@
-﻿using EstacionamentoBemSeguro;
-using EstacionamentoBemSeguro.Controllers;
-using EstacionamentoBemSeguro.Models;
+﻿using EstacionamentoBemSeguro.Controllers;
 
 EstacionamentoController estacionamentoController = new();
 estacionamentoController.IniciarEstacionamento();

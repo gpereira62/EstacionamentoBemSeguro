@@ -55,11 +55,11 @@ namespace EstacionamentoBemSeguro.Controllers
                             {
                                 Veiculo? veiculo = EstacionamentoView.PegarInfoVeiculo(Veiculo.Type.Moto);
 
-                                if(veiculo is not null)
+                                if (veiculo is not null)
                                 {
                                     Estacionamento.EstacionarVeiculo(veiculo);
                                 }
-                                else 
+                                else
                                 {
                                     Estacionamento.Avisos.Add(new Aviso("Operação de estacionar moto cancelada!"));
                                 }
@@ -160,7 +160,7 @@ namespace EstacionamentoBemSeguro.Controllers
                     Estacionamento.Avisos.Add(new Aviso("Veículo não encontrado! Tente novamente."));
                     continue;
                 }
-                
+
                 if (!EstacionamentoView.ConfirmarSaidaVeiculo(veiculoEncontrado))
                 {
                     Estacionamento.Avisos.Add(new Aviso("Saída de veículo cancelada!"));

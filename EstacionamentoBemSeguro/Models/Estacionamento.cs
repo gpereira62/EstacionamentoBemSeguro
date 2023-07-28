@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static EstacionamentoBemSeguro.Models.Vaga;
+﻿using static EstacionamentoBemSeguro.Models.Vaga;
 
 namespace EstacionamentoBemSeguro.Models
 {
@@ -268,7 +263,8 @@ namespace EstacionamentoBemSeguro.Models
                     Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
 
                     return;
-                } else
+                }
+                else
                 {
                     Avisos.Add(new Aviso("Vaga para van não encontrada!"));
                 }
@@ -289,7 +285,8 @@ namespace EstacionamentoBemSeguro.Models
                     vagaAlterada.Status = State.Disponivel;
                 }
 
-            } else
+            }
+            else
             {
                 Vaga? vagaEncontrada = EncontrarVaga(veiculo.Id);
 
