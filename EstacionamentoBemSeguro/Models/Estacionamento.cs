@@ -1,9 +1,11 @@
-﻿using static EstacionamentoBemSeguro.Models.Vaga;
+using static EstacionamentoBemSeguro.Models.Vaga;
 
 namespace EstacionamentoBemSeguro.Models
 {
     internal class Estacionamento
     {
+        private const int VagasPorVan = 3;
+
         public List<Vaga> Vagas { get; set; } = new();
         public double PrecoHora { get; set; }
         public int QtdeVagaPequena { get; set; }
@@ -14,200 +16,113 @@ namespace EstacionamentoBemSeguro.Models
 
         public void CriarVagas()
         {
-            for (int i = 0; i < QtdeVagaPequena; i++) { Vaga vagaPequena = new Vaga(Vaga.Type.Pequena); Vagas.Add(vagaPequena); }
-            for (int i = 0; i < QtdeVagaMedia; i++) { Vaga vagaMedia = new Vaga(Vaga.Type.Media); Vagas.Add(vagaMedia); }
-            for (int i = 0; i < QtdeVagaGrande; i++) { Vaga vagaGrande = new Vaga(Vaga.Type.Grande); Vagas.Add(vagaGrande); }
+            for (int i = 0; i < QtdeVagaPequena; i++) Vagas.Add(new Vaga(Vaga.Type.Pequena));
+            for (int i = 0; i < QtdeVagaMedia; i++) Vagas.Add(new Vaga(Vaga.Type.Media));
+            for (int i = 0; i < QtdeVagaGrande; i++) Vagas.Add(new Vaga(Vaga.Type.Grande));
         }
 
-        public int TotalVagas()
-        {
-            return Vagas.Count();
-        }
+        public int TotalVagas() => Vagas.Count;
 
-        public int TotalVagasDisponiveis()
-        {
-            return Vagas.Where(x => x.Status == State.Disponivel).Count();
-        }
+        public int TotalVagasDisponiveis() => Vagas.Count(x => x.Status == State.Disponivel);
 
-        public int TotalVagasDisponiveisMoto()
-        {
-            return Vagas.Where(x => x.Status == State.Disponivel).Where(y => y.Tipo == Vaga.Type.Pequena).Count();
-        }
+        public int TotalVagasOcupadas() => Vagas.Count(x => x.Status == State.Ocupada);
 
-        public int TotalVagasDisponiveisCarro()
-        {
-            return Vagas.Where(x => x.Status == State.Disponivel).Where(y => y.Tipo == Vaga.Type.Media).Count();
-        }
+        public int TotalVagasDisponiveisPorTipo(Vaga.Type tipo)
+            => Vagas.Count(x => x.Status == State.Disponivel && x.Tipo == tipo);
 
-        public int TotalVagasDisponiveisVan()
-        {
-            return Vagas.Where(x => x.Status == State.Disponivel).Where(y => y.Tipo == Vaga.Type.Grande).Count();
-        }
-
-        public int TotalVagasOcupadas()
-        {
-            return Vagas.Where(x => x.Status == State.Ocupada).Count();
-        }
+        public int TotalVagasDisponiveisMoto() => TotalVagasDisponiveisPorTipo(Vaga.Type.Pequena);
+        public int TotalVagasDisponiveisCarro() => TotalVagasDisponiveisPorTipo(Vaga.Type.Media);
+        public int TotalVagasDisponiveisVan() => TotalVagasDisponiveisPorTipo(Vaga.Type.Grande);
 
         public bool ExisteVanEstacionada()
-        {
-            return Vagas.Where(x => x.Veiculo is not null).Where(y => y.Veiculo?.Tipo == Veiculo.Type.Van).Any();
-        }
+            => Vagas.Any(x => x.Veiculo?.Tipo == Veiculo.Type.Van);
 
         public bool PodeEstacionarMoto()
         {
-            bool podeEstacionar = Vagas.Where(x => x.Status == State.Disponivel).Any();
-
-            if (!podeEstacionar)
+            bool pode = Vagas.Any(x => x.Status == State.Disponivel);
+            if (!pode)
                 Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a moto!"));
-
-            return podeEstacionar;
+            return pode;
         }
 
         public bool PodeEstacionarCarro()
         {
-            bool podeEstacionar = false;
-
-            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Media).Where(y => y.Status == State.Disponivel).Any();
-
-            if (podeEstacionar)
-                return podeEstacionar;
-
-            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).Any();
-
-            if (!podeEstacionar)
+            bool pode = Vagas.Any(x => x.Status == State.Disponivel &&
+                                       (x.Tipo == Vaga.Type.Media || x.Tipo == Vaga.Type.Grande));
+            if (!pode)
                 Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar o carro!"));
-
-            return podeEstacionar;
+            return pode;
         }
 
         public bool PodeEstacionarVan()
         {
-            bool podeEstacionar = false;
+            bool temGrande = Vagas.Any(x => x.Tipo == Vaga.Type.Grande && x.Status == State.Disponivel);
+            bool temTresMedias = Vagas.Count(x => x.Tipo == Vaga.Type.Media && x.Status == State.Disponivel) >= VagasPorVan;
 
-            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).Any();
-
-            if (podeEstacionar)
-                return podeEstacionar;
-
-            podeEstacionar = Vagas.Where(x => x.Tipo == Vaga.Type.Media)
-                                .Where(y => y.Status == State.Disponivel)
-                                .Take(3)
-                                .ToList()
-                                .Select(x => x != null).Count() == 3;
-
-            if (!podeEstacionar)
+            bool pode = temGrande || temTresMedias;
+            if (!pode)
                 Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
-
-            return podeEstacionar;
+            return pode;
         }
 
         public IDictionary<int, Veiculo> RetornaDicVeiculosEstacionados()
         {
-            List<Veiculo?> veiculosEstacionados = Vagas.Where(x => x.Status == State.Ocupada)
-                                                        .Select(y => y.Veiculo)
-                                                        .Distinct()
-                                                        .OrderBy(x => x?.DataHoraEntrada)
-                                                        .ToList();
+            var veiculos = Vagas
+                .Where(x => x.Status == State.Ocupada && x.Veiculo is not null)
+                .Select(x => x.Veiculo!)
+                .Distinct()
+                .OrderBy(x => x.DataHoraEntrada)
+                .ToList();
 
-            IDictionary<int, Veiculo> dicVeiculosEstacionados = new Dictionary<int, Veiculo>();
+            var dic = new Dictionary<int, Veiculo>();
+            for (int i = 0; i < veiculos.Count; i++)
+                dic.Add(i + 1, veiculos[i]);
 
-            for (int i = 0; i < veiculosEstacionados.Count(); i++)
-            {
-                var veiculo = veiculosEstacionados[i];
-                if (veiculo is not null)
-                {
-                    dicVeiculosEstacionados.Add(i + 1, veiculo);
-                }
-            }
-
-            return dicVeiculosEstacionados;
+            return dic;
         }
 
-        public Vaga? EncontrarVagaMoto()
-        {
-            Vaga? vagaPequena = Vagas.Where(x => x.Tipo == Vaga.Type.Pequena).Where(y => y.Status == State.Disponivel).FirstOrDefault();
+        private Vaga? PrimeiraVagaDisponivel(params Vaga.Type[] prioridades)
+            => prioridades
+                .Select(t => Vagas.FirstOrDefault(v => v.Tipo == t && v.Status == State.Disponivel))
+                .FirstOrDefault(v => v is not null);
 
-            if (vagaPequena is not null)
-            {
-                return vagaPequena;
-            }
+        private Vaga? EncontrarVagaMoto() => PrimeiraVagaDisponivel(Vaga.Type.Pequena, Vaga.Type.Media, Vaga.Type.Grande);
+        private Vaga? EncontrarVagaCarro() => PrimeiraVagaDisponivel(Vaga.Type.Media, Vaga.Type.Grande);
+        private Vaga? EncontrarVagaVan() => PrimeiraVagaDisponivel(Vaga.Type.Grande);
 
-            Vaga? vagaMedia = Vagas.Where(x => x.Tipo == Vaga.Type.Media).Where(y => y.Status == State.Disponivel).FirstOrDefault();
-
-            if (vagaMedia is not null)
-            {
-                return vagaMedia;
-            }
-
-            Vaga? vagaGrande = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).FirstOrDefault();
-
-            if (vagaGrande is not null)
-            {
-                return vagaGrande;
-            }
-
-            return null;
-        }
-
-        public Vaga? EncontrarVagaCarro()
-        {
-            Vaga? vagaMedia = Vagas.Where(x => x.Tipo == Vaga.Type.Media).Where(y => y.Status == State.Disponivel).FirstOrDefault();
-
-            if (vagaMedia is not null)
-            {
-                return vagaMedia;
-            }
-
-            Vaga? vagaGrande = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).FirstOrDefault();
-
-            if (vagaGrande is not null)
-            {
-                return vagaGrande;
-            }
-
-            return null;
-        }
-
-        public Vaga? EncontrarVagaVan()
-        {
-            Vaga? vagaGrande = Vagas.Where(x => x.Tipo == Vaga.Type.Grande).Where(y => y.Status == State.Disponivel).FirstOrDefault();
-
-            if (vagaGrande is not null)
-            {
-                return vagaGrande;
-            }
-
-            return null;
-        }
-
-        public List<Vaga> EncontrarTresVagasMediasVan()
-        {
-            return Vagas.Where(x => x.Tipo == Vaga.Type.Media).Where(y => y.Status == State.Disponivel).Take(3).ToList();
-        }
+        private List<Vaga> EncontrarTresVagasMediasVan()
+            => Vagas.Where(x => x.Tipo == Vaga.Type.Media && x.Status == State.Disponivel)
+                    .Take(VagasPorVan)
+                    .ToList();
 
         public Vaga? EncontrarVaga(Guid idVeiculo)
-        {
-            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo?.Id == idVeiculo).FirstOrDefault();
-        }
+            => Vagas.FirstOrDefault(x => x.Veiculo?.Id == idVeiculo);
 
         public List<Vaga> EncontrarVagaMediaVan(Guid idVeiculo)
+            => Vagas.Where(x => x.Veiculo?.Id == idVeiculo).ToList();
+
+        private void OcuparVaga(Vaga vaga, Veiculo veiculo)
         {
-            return Vagas.Where(x => x.Veiculo is not null).Where(x => x.Veiculo?.Id == idVeiculo).ToList();
+            var vagaAlterada = Vagas.Single(x => x.Id == vaga.Id);
+            vagaAlterada.Veiculo = veiculo;
+            vagaAlterada.Status = State.Ocupada;
+        }
+
+        private void LiberarVaga(Vaga vaga)
+        {
+            var vagaAlterada = Vagas.Single(x => x.Id == vaga.Id);
+            vagaAlterada.Veiculo = null;
+            vagaAlterada.Status = State.Disponivel;
         }
 
         public void EstacionarVeiculo(Veiculo veiculo)
         {
             if (veiculo.Tipo == Veiculo.Type.Moto)
             {
-                Vaga? vagaEncontrada = EncontrarVagaMoto();
-
-                if (vagaEncontrada is not null)
+                Vaga? vaga = EncontrarVagaMoto();
+                if (vaga is not null)
                 {
-                    Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
-                    vagaAlterada.Veiculo = veiculo;
-                    vagaAlterada.Status = State.Ocupada;
-
+                    OcuparVaga(vaga, veiculo);
                     Avisos.Add(new Aviso("Moto estacionada com sucesso!"));
                 }
                 else
@@ -217,14 +132,10 @@ namespace EstacionamentoBemSeguro.Models
             }
             else if (veiculo.Tipo == Veiculo.Type.Carro)
             {
-                Vaga? vagaEncontrada = EncontrarVagaCarro();
-
-                if (vagaEncontrada is not null)
+                Vaga? vaga = EncontrarVagaCarro();
+                if (vaga is not null)
                 {
-                    Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
-                    vagaAlterada.Veiculo = veiculo;
-                    vagaAlterada.Status = State.Ocupada;
-
+                    OcuparVaga(vaga, veiculo);
                     Avisos.Add(new Aviso("Carro estacionado com sucesso!"));
                 }
                 else
@@ -232,43 +143,28 @@ namespace EstacionamentoBemSeguro.Models
                     Avisos.Add(new Aviso("Vaga para carro não encontrada!"));
                 }
             }
-            else
+            else // Van
             {
-                Vaga? vagaEncontrada = EncontrarVagaVan();
-
-                if (vagaEncontrada is not null)
+                Vaga? vagaGrande = EncontrarVagaVan();
+                if (vagaGrande is not null)
                 {
-                    Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
-                    vagaAlterada.Veiculo = veiculo;
-                    vagaAlterada.Status = State.Ocupada;
-
+                    OcuparVaga(vagaGrande, veiculo);
                     Avisos.Add(new Aviso("Van estacionada com sucesso!"));
-
                     return;
                 }
 
-                List<Vaga> VagasMedias = EncontrarTresVagasMediasVan();
-
-                if (VagasMedias.Select(x => x != null).Count() == 3)
+                List<Vaga> vagasMedias = EncontrarTresVagasMediasVan();
+                if (vagasMedias.Count == VagasPorVan)
                 {
                     veiculo.OcupaVagaMedia = true;
-
-                    foreach (Vaga vaga in VagasMedias)
-                    {
-                        Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vaga.Id);
-                        vagaAlterada.Veiculo = veiculo;
-                        vagaAlterada.Status = State.Ocupada;
-                    }
-
-                    Avisos.Add(new Aviso("Não há espaço no estacionamento para estacionar a van!"));
-
-                    return;
+                    foreach (var vaga in vagasMedias)
+                        OcuparVaga(vaga, veiculo);
+                    Avisos.Add(new Aviso("Van estacionada com sucesso em 3 vagas médias!"));
                 }
                 else
                 {
                     Avisos.Add(new Aviso("Vaga para van não encontrada!"));
                 }
-
             }
         }
 
@@ -276,58 +172,32 @@ namespace EstacionamentoBemSeguro.Models
         {
             if (veiculo.OcupaVagaMedia)
             {
-                List<Vaga> vagasEncontradas = EncontrarVagaMediaVan(veiculo.Id);
-
-                foreach (var vaga in vagasEncontradas)
-                {
-                    Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vaga.Id);
-                    vagaAlterada.Veiculo = null;
-                    vagaAlterada.Status = State.Disponivel;
-                }
-
+                foreach (var vaga in EncontrarVagaMediaVan(veiculo.Id))
+                    LiberarVaga(vaga);
             }
             else
             {
-                Vaga? vagaEncontrada = EncontrarVaga(veiculo.Id);
-
-                if (vagaEncontrada != null)
-                {
-                    Vaga? vagaAlterada = this.Vagas.Single(x => x.Id == vagaEncontrada.Id);
-                    vagaAlterada.Veiculo = null;
-                    vagaAlterada.Status = State.Disponivel;
-                }
+                Vaga? vaga = EncontrarVaga(veiculo.Id);
+                if (vaga is not null)
+                    LiberarVaga(vaga);
             }
         }
 
         public List<Vaga> ListaVagasVans()
-        {
-            return Vagas.Where(x => x.Veiculo is not null)
-                        .Where(x => x.Veiculo?.Tipo == Veiculo.Type.Van)
-                        .ToList()
-                        .DistinctBy(x => x.Veiculo)
-                        .ToList();
-        }
+            => Vagas
+                .Where(x => x.Veiculo?.Tipo == Veiculo.Type.Van)
+                .DistinctBy(x => x.Veiculo)
+                .ToList();
 
-        public bool TemAvisos()
-        {
-            return Avisos.Any();
-        }
+        public bool TemAvisos() => Avisos.Any();
 
         public Tuple<double, TimeSpan> InfoPagamentoSaida(Veiculo veiculo)
         {
-
-            double valorCobrado = new();
             DateTime dataHoraSaida = DateTime.Now;
             TimeSpan tempoEstacionado = dataHoraSaida - veiculo.DataHoraEntrada;
 
-            if (tempoEstacionado.Hours < 1)
-            {
-                valorCobrado = PrecoHora;
-            }
-            else
-            {
-                valorCobrado = int.Parse(tempoEstacionado.Hours.ToString()) * PrecoHora;
-            }
+            int horas = Math.Max(1, (int)tempoEstacionado.TotalHours);
+            double valorCobrado = horas * PrecoHora;
 
             return new Tuple<double, TimeSpan>(valorCobrado, tempoEstacionado);
         }
