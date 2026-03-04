@@ -1,13 +1,17 @@
-﻿using EstacionamentoBemSeguro.Models;
+using System.Text;
+using EstacionamentoBemSeguro.Models;
 using static EstacionamentoBemSeguro.Controllers.EstacionamentoController;
 
 namespace EstacionamentoBemSeguro.Views
 {
     internal class EstacionamentoView
     {
-        public EstacionamentoView()
+        private static readonly Dictionary<Veiculo.Type, string> _titulos = new()
         {
-        }
+            [Veiculo.Type.Moto]  = "Estacionar Moto",
+            [Veiculo.Type.Carro] = "Estacionar Carro",
+            [Veiculo.Type.Van]   = "Estacionar Van",
+        };
 
         public Estacionamento PegarConfiguracoesIniciais(Estacionamento estacionamento)
         {
@@ -39,8 +43,8 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("------------ Bem Vindo ao Estacionamento Bem Seguro ------------");
             Console.WriteLine("----------------------------------------------------------------");
 
-            Console.WriteLine($"\r\n    Preço cobrado por hora    R$ {estacionamento.PrecoHora.ToString("N2")}");
-            Console.WriteLine($"    Valor do caixa atualmente R$ {estacionamento.Caixa.ToString("N2")}");
+            Console.WriteLine($"\r\n    Preço cobrado por hora    R$ {estacionamento.PrecoHora:N2}");
+            Console.WriteLine($"    Valor do caixa atualmente R$ {estacionamento.Caixa:N2}");
 
             Console.WriteLine("\r\n----------------------------------------------------------------");
 
@@ -61,9 +65,7 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("----------------------------------------------------------------");
 
             if (estacionamento.TemAvisos())
-            {
                 MostraAvisos(estacionamento);
-            }
 
             MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
             Console.WriteLine("        0 - Cancelar saída de veículo");
@@ -76,47 +78,26 @@ namespace EstacionamentoBemSeguro.Views
         {
             Console.WriteLine("\r\n    Veículos:\r\n");
             foreach (var dicVeiculo in dicVeiculosEstacionados)
-                Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value.ToString()}");
+                Console.WriteLine($"        {dicVeiculo.Key} - {dicVeiculo.Value}");
         }
 
         public bool ConfirmarSaidaVeiculo(Veiculo veiculo)
         {
-            Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculo.ToString()}?");
+            Console.WriteLine($"\r\n\r\nDeseja mesmo realizar a saída do veículo - {veiculo}?");
             Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
-            string resposta = Utils.LerRespostaPergunta().ToLower();
-
-            if (resposta.Equals("n"))
-            {
-                return false;
-            }
-
-            return true;
+            return !Utils.LerRespostaPergunta().Equals("n", StringComparison.OrdinalIgnoreCase);
         }
 
         public void MostraAvisos(Estacionamento estacionamento)
         {
-            if (estacionamento.TemAvisos())
-            {
-                string avisos = "";
-                foreach (var aviso in estacionamento.Avisos)
-                {
-                    if (string.IsNullOrEmpty(avisos))
-                    {
-                        avisos = aviso.Mensagem;
-                    }
-                    else
-                    {
-                        avisos += $"\r\n        {aviso.Mensagem}";
-                    }
-                }
+            if (!estacionamento.TemAvisos()) return;
 
-                Console.WriteLine("\r\n----------------------------------------------------------------");
+            string mensagens = string.Join("\r\n        ", estacionamento.Avisos.Select(a => a.Mensagem));
 
-                Console.WriteLine("\r\n    Avisos:\r\n");
-                Console.WriteLine("        " + avisos);
-
-                Console.WriteLine("\r\n----------------------------------------------------------------");
-            }
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("\r\n    Avisos:\r\n");
+            Console.WriteLine("        " + mensagens);
+            Console.WriteLine("\r\n----------------------------------------------------------------");
         }
 
         public Opcoes MostrarOpcoesMenu()
@@ -128,6 +109,7 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("        4 - Saída de veículo");
             Console.WriteLine("        5 - Quantas vagas as vans ocupam?");
             Console.WriteLine("        6 - Listar veículos estacionados");
+            Console.WriteLine("        7 - Como funciona o Estacionamento Bem Seguro?");
             Console.WriteLine("        0 - Fechar o programa\r\n");
 
             Opcoes opcao = (Opcoes)int.Parse(Utils.LerNumeros(false));
@@ -139,26 +121,11 @@ namespace EstacionamentoBemSeguro.Views
 
         private void MostrarTitulo(Veiculo.Type tipo)
         {
-            switch (tipo)
-            {
-                case Veiculo.Type.Carro:
-                    Console.WriteLine("\r\n----------------------------------------------------------------");
-                    Console.WriteLine("----------------------- Estacionar Carro -----------------------");
-                    Console.WriteLine("----------------------------------------------------------------");
-                    break;
-                case Veiculo.Type.Moto:
-                    Console.WriteLine("\r\n----------------------------------------------------------------");
-                    Console.WriteLine("------------------------ Estacionar Moto -----------------------");
-                    Console.WriteLine("----------------------------------------------------------------");
-                    break;
-                case Veiculo.Type.Van:
-                    Console.WriteLine("\r\n----------------------------------------------------------------");
-                    Console.WriteLine("------------------------ Estacionar Van ------------------------");
-                    Console.WriteLine("----------------------------------------------------------------");
-                    break;
-                default:
-                    break;
-            }
+            string titulo = _titulos.TryGetValue(tipo, out string? t) ? t : tipo.ToString();
+            string centrado = titulo.PadLeft((64 + titulo.Length) / 2).PadRight(64);
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine($"-{centrado}-");
+            Console.WriteLine("----------------------------------------------------------------");
         }
 
         public Veiculo? PegarInfoVeiculo(Veiculo.Type tipo)
@@ -172,42 +139,31 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("\r\nDigite qual é o veículo:");
             veiculo.Nome = Utils.LerStrings();
 
-            if (veiculo.Nome.ToLower().Equals("sair"))
-            {
+            if (veiculo.Nome.Equals("sair", StringComparison.OrdinalIgnoreCase))
                 return null;
-            }
 
             Console.WriteLine("\r\n\r\nDigite a placa do veículo:");
             veiculo.Placa = Utils.LerStrings();
 
-            if (veiculo.Placa.ToLower().Equals("sair"))
-            {
+            if (veiculo.Placa.Equals("sair", StringComparison.OrdinalIgnoreCase))
                 return null;
-            }
 
             return veiculo;
         }
 
         public bool ChecarPagamentoSaida(double valorCobrado, TimeSpan tempoEstacionado, double precoHora)
         {
-
             Console.WriteLine("\r\n----------------------------------------------------------------");
             Console.WriteLine("--------------------------- Pagamento --------------------------");
             Console.WriteLine("----------------------------------------------------------------");
 
-            Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado.ToString("hh':'mm':'ss")}.");
-            Console.WriteLine($"Preço por hora            R$ {precoHora.ToString("N2")}");
-            Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado.ToString("N2")}");
+            Console.WriteLine($"\r\nTempo que o veículo ficou estacionado {tempoEstacionado:hh\\:mm\\:ss}.");
+            Console.WriteLine($"Preço por hora            R$ {precoHora:N2}");
+            Console.WriteLine($"Valor total a ser cobrado R$ {valorCobrado:N2}");
 
             Console.WriteLine("\r\nPagamento foi realizado ?");
             Console.WriteLine($"Digite 's' para Sim ou 'n' para Não:");
-            string resposta = Utils.LerRespostaPergunta().ToLower();
-            if (resposta.Equals("n"))
-            {
-                return false;
-            }
-
-            return true;
+            return !Utils.LerRespostaPergunta().Equals("n", StringComparison.OrdinalIgnoreCase);
         }
 
         public void QuantasVagasVansOcupam(Estacionamento estacionamento)
@@ -216,41 +172,17 @@ namespace EstacionamentoBemSeguro.Views
             Console.WriteLine("---------------- Quantas Vagas as Vans Ocupam? -----------------");
             Console.WriteLine("----------------------------------------------------------------");
 
-            string retorno = "";
-            List<Vaga> vagasVansOcupam = estacionamento.ListaVagasVans();
-
-            foreach (var vaga in vagasVansOcupam)
+            var sb = new StringBuilder();
+            foreach (var vaga in estacionamento.ListaVagasVans())
             {
-                if (vaga.Veiculo != null)
-                {
-                    if (vaga.Tipo == Vaga.Type.Media && vaga.Veiculo.Tipo == Veiculo.Type.Van)
-                    {
-                        if (retorno.Equals(""))
-                        {
-                            retorno += $"\r\n   Van: {vaga.Veiculo.Nome} - está ocupando 3 vagas médias de carro";
-                        }
-                        else
-                        {
-                            retorno += $"\n   Van: {vaga.Veiculo.Nome} - está ocupando 3 vagas médias de carro";
-                        }
-                    }
-                    else
-                    {
-                        if (retorno.Equals(""))
-                        {
-                            retorno += $"\r\n   Van: {vaga.Veiculo.Nome} - está ocupando 1 vaga grande";
-                        }
-                        else
-                        {
-                            retorno += $"\n   Van: {vaga.Veiculo.Nome} - está ocupando 1 vaga grande";
-                        }
-                    }
-                }
-
+                if (vaga.Veiculo is null) continue;
+                string desc = vaga.Tipo == Vaga.Type.Media
+                    ? $"   Van: {vaga.Veiculo.Nome} - está ocupando 3 vagas médias de carro"
+                    : $"   Van: {vaga.Veiculo.Nome} - está ocupando 1 vaga grande";
+                sb.AppendLine(desc);
             }
 
-            Console.WriteLine(retorno);
-
+            Console.WriteLine(sb.ToString());
             Console.WriteLine("\r\nAperte enter para voltar ao menu principal");
             Console.ReadLine();
         }
@@ -258,6 +190,93 @@ namespace EstacionamentoBemSeguro.Views
         public void ListarVeiculosEstacionados(Estacionamento estacionamento)
         {
             MostrarListaVeiculosEstacionados(estacionamento.RetornaDicVeiculosEstacionados());
+            Console.WriteLine("\r\nAperte enter para voltar ao menu principal");
+            Console.ReadLine();
+        }
+
+        public void MostrarComoFunciona(Estacionamento estacionamento)
+        {
+            Console.Clear();
+
+            Console.WriteLine("\r\n================================================================");
+            Console.WriteLine("         BEM-VINDO AO ESTACIONAMENTO BEM SEGURO!");
+            Console.WriteLine("         O estacionamento mais organizado da cidade.");
+            Console.WriteLine("================================================================");
+
+            Console.WriteLine("\r\n  Aqui, cada veículo tem seu lugar — e a gente garante isso!");
+            Console.WriteLine("  Confira abaixo tudo que você precisa saber:");
+
+            // --- Tipos de vagas ---
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("  [P]  TIPOS DE VAGAS");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine($"\r\n  Pequena  (P)  → {estacionamento.QtdeVagaPequena,3} vagas  │ Ideal para motos");
+            Console.WriteLine($"  Média    (M)  → {estacionamento.QtdeVagaMedia,3} vagas  │ Ideal para carros");
+            Console.WriteLine($"  Grande   (G)  → {estacionamento.QtdeVagaGrande,3} vagas  │ Ideal para vans");
+
+            // --- Regras por veículo ---
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("  [R]  REGRAS DE ESTACIONAMENTO POR VEÍCULO");
+            Console.WriteLine("----------------------------------------------------------------");
+
+            Console.WriteLine("\r\n  MOTO  ");
+            Console.WriteLine("    ✔ Pode estacionar em QUALQUER tipo de vaga disponível.");
+            Console.WriteLine("    ✔ Preferência: Pequena → Média → Grande.");
+            Console.WriteLine("    ✔ Não ocupa mais de 1 vaga.");
+
+            Console.WriteLine("\r\n  CARRO");
+            Console.WriteLine("    ✔ Pode estacionar em vagas Médias ou Grandes.");
+            Console.WriteLine("    ✔ Preferência: Média → Grande.");
+            Console.WriteLine("    ✔ Não pode usar vagas Pequenas.");
+
+            Console.WriteLine("\r\n  VAN");
+            Console.WriteLine("    ✔ Prioridade: ocupa 1 vaga Grande (quando disponível).");
+            Console.WriteLine("    ✔ Alternativa: ocupa exatamente 3 vagas Médias.");
+            Console.WriteLine("    ✗ Se não houver vaga Grande nem 3 Médias livres, a van");
+            Console.WriteLine("      não pode entrar no estacionamento.");
+
+            // --- Cobrança ---
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("  [$]  COBRANÇA");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine($"\r\n  Preço por hora: R$ {estacionamento.PrecoHora:N2}");
+            Console.WriteLine("\r\n  Regras de cobrança:");
+            Console.WriteLine("    • A cobrança é feita por hora cheia.");
+            Console.WriteLine("    • Menos de 1 hora? Ainda assim é cobrada 1 hora.");
+            Console.WriteLine("    • Exemplo: 2h30min = cobra 2 horas.");
+            Console.WriteLine("    • O pagamento é confirmado na saída do veículo.");
+            Console.WriteLine("    • O valor vai direto para o caixa do estacionamento.");
+
+            // --- Fluxo de entrada/saída ---
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("  [»]  COMO FUNCIONA A ENTRADA E SAÍDA");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("\r\n  ENTRADA:");
+            Console.WriteLine("    1. Escolha o tipo de veículo no menu.");
+            Console.WriteLine("    2. Informe o nome e a placa do veículo.");
+            Console.WriteLine("    3. O sistema encontra a melhor vaga automaticamente.");
+            Console.WriteLine("    4. Pronto! O horário de entrada é registrado.");
+
+            Console.WriteLine("\r\n  SAÍDA:");
+            Console.WriteLine("    1. Selecione 'Saída de veículo' no menu.");
+            Console.WriteLine("    2. Escolha o veículo pela lista.");
+            Console.WriteLine("    3. Confirme a saída.");
+            Console.WriteLine("    4. Realize o pagamento.");
+            Console.WriteLine("    5. A vaga é liberada automaticamente.");
+
+            // --- Avisos automáticos ---
+            Console.WriteLine("\r\n----------------------------------------------------------------");
+            Console.WriteLine("  [!]  AVISOS AUTOMÁTICOS");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("\r\n  O sistema avisa automaticamente quando:");
+            Console.WriteLine("    • O estacionamento estiver cheio ou vazio.");
+            Console.WriteLine("    • Todas as vagas de um tipo específico forem ocupadas.");
+            Console.WriteLine("    • Não houver espaço para o veículo que tenta entrar.");
+
+            Console.WriteLine("\r\n================================================================");
+            Console.WriteLine("  Dúvidas? Fale com a nossa equipe. Bom estacionamento!");
+            Console.WriteLine("================================================================");
+
             Console.WriteLine("\r\nAperte enter para voltar ao menu principal");
             Console.ReadLine();
         }
